@@ -75,7 +75,7 @@
       "display_name": "Rare Key",
       "material": "TRIPWIRE_HOOK",
       "minecraft:item_model": "skybit:item/keys/rare",
-      "render_mode": "2d_icon"
+      "render_mode": "2d_gui_3d_held"
     },
     {
       "id": "skybit:fragments/rare",
@@ -103,7 +103,7 @@
       "display_name": "Epic Key",
       "material": "TRIPWIRE_HOOK",
       "minecraft:item_model": "skybit:item/keys/epic",
-      "render_mode": "2d_icon"
+      "render_mode": "2d_gui_3d_held"
     },
     {
       "id": "skybit:fragments/epic",
@@ -159,7 +159,7 @@
       "display_name": "Mythic Key",
       "material": "TRIPWIRE_HOOK",
       "minecraft:item_model": "skybit:item/keys/mythic",
-      "render_mode": "2d_icon"
+      "render_mode": "2d_gui_3d_held"
     },
     {
       "id": "skybit:fragments/mythic",
@@ -652,5 +652,11 @@
       "render_mode": "2d_icon"
     }
   ],
-  "three_d_held_items": 1
+  "three_d_held_items": 4,
+  "three_d_held_key_ids": [
+    "skybit:keys/epic",
+    "skybit:keys/legendary",
+    "skybit:keys/mythic",
+    "skybit:keys/rare"
+  ]
 }

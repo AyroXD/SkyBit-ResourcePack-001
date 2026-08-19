@@ -6,9 +6,29 @@
   "items": 92,
   "two_d_items": 86,
   "three_d_crates": 6,
-  "sha1": "3ff269b825612c33d52e8d556b2ce136f3fcdff8",
+  "sha1": "b3616c7b348870dc33493a1be1478eb8b9ebf273",
   "status": "GENERATED_AND_STRUCTURALLY_VALIDATED",
-  "three_d_held_items": 1,
-  "legendary_key_render_mode": "2d_gui_3d_held",
-  "legendary_key_model": "skybit:item/keys/legendary_3d"
+  "three_d_held_items": 4,
+  "three_d_held_keys": {
+    "rare": {
+      "name": "Celestial Azure Key V6 Deluxe",
+      "render_mode": "2d_gui_3d_held",
+      "model": "skybit:item/keys/rare_3d"
+    },
+    "epic": {
+      "name": "Cosmic Magenta Key V7 Ultra",
+      "render_mode": "2d_gui_3d_held",
+      "model": "skybit:item/keys/epic_3d"
+    },
+    "legendary": {
+      "name": "Legendary Golden Key V2",
+      "render_mode": "2d_gui_3d_held",
+      "model": "skybit:item/keys/legendary_3d"
+    },
+    "mythic": {
+      "name": "Astral Empress Key V8",
+      "render_mode": "2d_gui_3d_held",
+      "model": "skybit:item/keys/mythic_3d"
+    }
+  }
 }
