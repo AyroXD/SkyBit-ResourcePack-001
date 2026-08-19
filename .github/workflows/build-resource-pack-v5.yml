@@ -166,7 +166,7 @@ jobs:
           cp build-v6/release-manifest.json ./release-manifest-v6.0.0.json
           cp build-v6/development/VALIDATION_REPORT.md ./development/v6.0.0/VALIDATION_REPORT.md
           cp build-v6/development/skybit_item_registry.json ./development/v6.0.0/skybit_item_registry.json
-          cp build-v6/development/integration/skybit-items.yml ./development/v6.0.0/skybit-items.yml
+          cp build-v6/development/skybit-items.yml ./development/v6.0.0/skybit-items.yml
           cp build-v6/development/README-GITHUB.md ./README.md
           cp tools/generate_ultimate50.py ./development/v6.0.0/generate_ultimate50.py
           cp tools/apply_legendary_key_v2.py ./development/v6.0.0/apply_legendary_key_v2.py
