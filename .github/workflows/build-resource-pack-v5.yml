@@ -8,6 +8,7 @@ on:
       - 'tools/apply_legendary_key_v2.py'
       - 'source/legendary-key-v2/**'
       - 'source/SkyBit_3_Key_Package.zip'
+      - 'source/key-package-parts/**'
       - '.github/workflows/build-resource-pack-v5.yml'
   pull_request:
     branches: [main]
