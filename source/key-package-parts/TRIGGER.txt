@@ -1,1 +1,1 @@
-Trigger premium key package build after all base64 parts are present.
+Trigger premium key package build after valid binary upload. Build Rare, Epic, Legendary and Mythic held models into the final SkyBitResourcePack.zip.
