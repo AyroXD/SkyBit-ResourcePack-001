@@ -1,5 +1,6 @@
 name: Build SkyBit Resource Pack v6
 
+# Force a real main-branch push rebuild after merging the Legendary Golden Key V2 release PR.
 on:
   push:
     branches: [main]
