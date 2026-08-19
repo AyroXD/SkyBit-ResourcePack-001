@@ -25,18 +25,8 @@ jobs:
       - name: Install build dependencies
         run: python -m pip install --disable-pip-version-check pillow pyyaml
 
-      - name: Restore production generator
-        run: |
-          cat .build/skybit-v5/generator.*.b64 > /tmp/skybit-v5-generator.b64
-          python - <<'PY'
-          from pathlib import Path
-          import base64, bz2
-          encoded = Path('/tmp/skybit-v5-generator.b64').read_text().strip()
-          source = bz2.decompress(base64.b64decode(encoded))
-          Path('tools/generate_ultimate50.py').write_bytes(source)
-          print('Generator restored:', len(source), 'bytes')
-          PY
-          python -m py_compile tools/generate_ultimate50.py
+      - name: Validate production generator
+        run: python -m py_compile tools/generate_ultimate50.py
 
       - name: Generate and validate Minecraft 26.2 pack
         env:
@@ -100,6 +90,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No generated changes.'
           else
-            git commit -m 'Build SkyBit Ultimate Resource Pack v5.0.0 for Minecraft 26.2'
+            git commit -m 'Build latest SkyBit Ultimate Resource Pack v5.0.0'
             git push
           fi
