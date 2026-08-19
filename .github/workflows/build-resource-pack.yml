@@ -7,6 +7,7 @@ on:
       - 'tools/generate_pack.py'
       - 'tools/upgrade_pack37.py'
       - 'tools/generate_models37.py'
+      - 'tools/fix_pack_compat.py'
       - '.github/workflows/build-resource-pack.yml'
   workflow_dispatch:
 
@@ -37,6 +38,9 @@ jobs:
       - name: Generate SkyBit 3.7 custom models
         run: python tools/generate_models37.py
 
+      - name: Apply Minecraft 1.21.11 compatibility fixes
+        run: python tools/fix_pack_compat.py
+
       - name: Package v3.7.0
         run: |
           python - <<'PY'
@@ -64,11 +68,16 @@ jobs:
               assert 'pack.mcmeta' in names
               assert 'pack.png' in names
               assert 'assets/skybit/items/crates/mythic.json' in names
+              assert 'assets/skybit/items/item/crates/mythic.json' in names
               assert 'assets/skybit/models/item/crates/mythic.json' in names
               assert 'assets/skybit/models/item/afk/beacon.json' in names
               assert 'assets/skybit/models/item/gear/armor/voidwarden_chestplate.json' in names
               for n in names:
                   if n.endswith('.json') or n == 'pack.mcmeta': json.loads(z.read(n).decode('utf-8'))
+              mcmeta=json.loads(z.read('pack.mcmeta').decode('utf-8'))['pack']
+              assert mcmeta.get('pack_format') == 75
+              assert mcmeta.get('min_format') == 75
+              assert mcmeta.get('max_format') == 75
           sha=hashlib.sha1(open(p,'rb').read()).hexdigest()
           print('ZIP OK')
           print('SHA1:',sha)
