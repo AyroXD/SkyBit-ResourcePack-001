@@ -8,4 +8,4 @@ Direct pack URL:
 `https://raw.githubusercontent.com/AyroXD/SkyBit-ResourcePack-001/main/SkyBitResourcePack.zip`
 
 SHA1:
-`9a39fe61ca000db24e82935ce74b0db6b8fc7b26`
+`e2b5f25ee518334d0093daf6a8fcf44393d99934`
