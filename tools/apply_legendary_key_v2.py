@@ -78,7 +78,7 @@ def main():
         data['three_d_held_items'] = 1
         write_json(registry, data)
 
-    integration = DEV / 'skybit-items.yml'
+    integration = DEV / 'integration' / 'skybit-items.yml'
     if integration.exists():
         text = integration.read_text(encoding='utf-8')
         marker = '  - id: "skybit:keys/legendary"'
