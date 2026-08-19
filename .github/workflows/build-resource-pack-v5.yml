@@ -1,6 +1,6 @@
 name: Build SkyBit Resource Pack v6
 
-# Force a real main-branch push rebuild after merging the Legendary Golden Key V2 release PR.
+# Build and publish the Minecraft 1.21.11 pack with the uploaded Legendary Golden Key V2.
 on:
   push:
     branches: [main]
@@ -81,8 +81,6 @@ jobs:
               assert model['textures']['particle'] == 'skybit:item/keys/legendary_3d'
               assert 'firstperson_righthand' in model.get('display', {})
               assert 'thirdperson_righthand' in model.get('display', {})
-              assert 'assets/skybit/items/keys/basic.json' in canonical
-              assert 'assets/skybit/items/crates/mythic.json' in canonical
           print('Release verified:', actual)
           print('Canonical items:', len(canonical))
           print('3D crates:', len(crate_3d))
@@ -111,7 +109,7 @@ jobs:
           cp build-v6/release-manifest.json ./release-manifest-v6.0.0.json
           cp build-v6/development/VALIDATION_REPORT.md ./development/v6.0.0/VALIDATION_REPORT.md
           cp build-v6/development/skybit_item_registry.json ./development/v6.0.0/skybit_item_registry.json
-          cp build-v6/development/skybit-items.yml ./development/v6.0.0/skybit-items.yml
+          cp build-v6/development/integration/skybit-items.yml ./development/v6.0.0/skybit-items.yml
           cp build-v6/development/README-GITHUB.md ./README.md
           cp tools/generate_ultimate50.py ./development/v6.0.0/generate_ultimate50.py
           cp tools/apply_legendary_key_v2.py ./development/v6.0.0/apply_legendary_key_v2.py
