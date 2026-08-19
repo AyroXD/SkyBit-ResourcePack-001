@@ -4,10 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'tools/generate_pack.py'
-      - 'tools/upgrade_pack37.py'
-      - 'tools/generate_models37.py'
-      - 'tools/fix_pack_compat.py'
+      - 'tools/generate_premium40.py'
       - '.github/workflows/build-resource-pack.yml'
   workflow_dispatch:
 
@@ -29,69 +26,70 @@ jobs:
       - name: Install Pillow
         run: python -m pip install --disable-pip-version-check pillow
 
-      - name: Generate base pack
-        run: python tools/generate_pack.py
+      - name: Generate SkyBit Premium Pack v4.0.0
+        run: python tools/generate_premium40.py
 
-      - name: Apply SkyBit 3.7 texture and branding overhaul
-        run: python tools/upgrade_pack37.py
-
-      - name: Generate SkyBit 3.7 custom models
-        run: python tools/generate_models37.py
-
-      - name: Apply Minecraft 1.21.11 compatibility fixes
-        run: python tools/fix_pack_compat.py
-
-      - name: Package v3.7.0
+      - name: Package v4.0.0
         run: |
           python - <<'PY'
           from pathlib import Path
           import hashlib, zipfile
           root=Path('build/SkyBit-ResourcePack')
-          out=Path('SkyBit-ResourcePack-v3.7.0-READY.zip')
+          out=Path('SkyBit-ResourcePack-v4.0.0-READY.zip')
           if out.exists(): out.unlink()
           with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
               for f in sorted(root.rglob('*')):
                   if f.is_file(): z.write(f,f.relative_to(root).as_posix())
           sha=hashlib.sha1(out.read_bytes()).hexdigest()
-          Path('SkyBit-ResourcePack-v3.7.0.sha1.txt').write_text(sha+'\n')
+          Path('SkyBit-ResourcePack-v4.0.0.sha1.txt').write_text(sha+'\n')
           print('SHA1:',sha)
           PY
 
-      - name: Verify ZIP
+      - name: Verify ZIP and modern item models
         run: |
           python - <<'PY'
           import hashlib, json, zipfile
-          p='SkyBit-ResourcePack-v3.7.0-READY.zip'
+          p='SkyBit-ResourcePack-v4.0.0-READY.zip'
           with zipfile.ZipFile(p) as z:
-              names=z.namelist()
+              names=set(z.namelist())
               assert z.testzip() is None
-              assert 'pack.mcmeta' in names
-              assert 'pack.png' in names
-              assert 'assets/skybit/items/crates/mythic.json' in names
-              assert 'assets/skybit/items/item/crates/mythic.json' in names
-              assert 'assets/skybit/models/item/crates/mythic.json' in names
-              assert 'assets/skybit/models/item/afk/beacon.json' in names
-              assert 'assets/skybit/models/item/gear/armor/voidwarden_chestplate.json' in names
+              required=[
+                  'pack.mcmeta','pack.png','SKYBIT-ITEM-MANIFEST.json',
+                  'assets/skybit/items/vip/vip_badge.json',
+                  'assets/skybit/items/vip/emperor_badge.json',
+                  'assets/skybit/items/keys/mythic.json',
+                  'assets/skybit/items/crates/mythic.json',
+                  'assets/skybit/items/item/crates/mythic.json',
+                  'assets/skybit/models/item/crates/mythic_icon.json',
+                  'assets/skybit/models/item/crates/mythic_3d.json',
+                  'assets/skybit/models/item/gear/weapons/void_reaver_3d.json',
+                  'assets/skybit/models/item/gear/armor/voidwarden_chestplate_3d.json'
+              ]
+              for n in required: assert n in names, n
               for n in names:
-                  if n.endswith('.json') or n == 'pack.mcmeta': json.loads(z.read(n).decode('utf-8'))
+                  if n.endswith('.json') or n == 'pack.mcmeta':
+                      json.loads(z.read(n).decode('utf-8'))
               mcmeta=json.loads(z.read('pack.mcmeta').decode('utf-8'))['pack']
-              assert mcmeta.get('pack_format') == 75
-              assert mcmeta.get('min_format') == 75
-              assert mcmeta.get('max_format') == 75
-          sha=hashlib.sha1(open(p,'rb').read()).hexdigest()
+              assert mcmeta['pack_format'] == 75
+              assert mcmeta['min_format'] == 75
+              assert mcmeta['max_format'] == 75
+              manifest=json.loads(z.read('SKYBIT-ITEM-MANIFEST.json').decode('utf-8'))
+              assert manifest['item_count'] >= 90
+              mythic=json.loads(z.read('assets/skybit/items/crates/mythic.json').decode('utf-8'))
+              assert mythic['model']['type'] == 'minecraft:select'
+              assert mythic['model']['property'] == 'minecraft:display_context'
           print('ZIP OK')
-          print('SHA1:',sha)
+          print('SHA1:', hashlib.sha1(open(p,'rb').read()).hexdigest())
           PY
 
-      - name: Replace old generated pack
+      - name: Commit generated v4 release
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          rm -f SkyBit-ResourcePack-v3.4.0-READY.zip SkyBit-ResourcePack-v3.4.0.sha1.txt
-          git add -A SkyBit-ResourcePack-v3.7.0-READY.zip SkyBit-ResourcePack-v3.7.0.sha1.txt SkyBit-ResourcePack-v3.4.0-READY.zip SkyBit-ResourcePack-v3.4.0.sha1.txt || true
+          git add SkyBit-ResourcePack-v4.0.0-READY.zip SkyBit-ResourcePack-v4.0.0.sha1.txt
           if git diff --cached --quiet; then
             echo 'No generated changes.'
           else
-            git commit -m 'Build SkyBit Resource Pack v3.7.0'
+            git commit -m 'Build SkyBit Premium Resource Pack v4.0.0'
             git push
           fi
