@@ -27,18 +27,29 @@ The pack uses Minecraft's data-driven item model format. Inventory and dropped-i
 
 ### Direct resource-pack URL
 
-After the v4 GitHub Actions build completes:
-
 ```text
 https://raw.githubusercontent.com/AyroXD/SkyBit-ResourcePack-001/main/SkyBit-ResourcePack-v4.0.0-READY.zip
 ```
 
 ### SHA1
 
-The current hash is generated into:
+```text
+241b2924c310433c95067c008cd56385030920b7
+```
+
+### SkyBitCore
 
 ```text
-SkyBit-ResourcePack-v4.0.0.sha1.txt
+/sba pack seturl https://raw.githubusercontent.com/AyroXD/SkyBit-ResourcePack-001/main/SkyBit-ResourcePack-v4.0.0-READY.zip 241b2924c310433c95067c008cd56385030920b7
+/sba pack send all
+```
+
+### server.properties
+
+```properties
+resource-pack=https://raw.githubusercontent.com/AyroXD/SkyBit-ResourcePack-001/main/SkyBit-ResourcePack-v4.0.0-READY.zip
+resource-pack-sha1=241b2924c310433c95067c008cd56385030920b7
+require-resource-pack=false
 ```
 
 ### Important item-model IDs
