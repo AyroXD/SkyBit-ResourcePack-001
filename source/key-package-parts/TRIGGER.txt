@@ -1,1 +1,1 @@
-Trigger premium key package build after valid binary upload. Build Rare, Epic, Legendary and Mythic held models into the final SkyBitResourcePack.zip.
+PR verification build for final SkyBitResourcePack.zip with Rare, Epic, Legendary and Mythic premium 3D held key models. Keep inventory icons 2D.
