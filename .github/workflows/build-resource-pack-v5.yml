@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'tools/generate_ultimate50.py'
+      - 'tools/apply_legendary_key_v2.py'
+      - 'source/legendary-key-v2/**'
+      - '.github/workflows/build-resource-pack-v5.yml'
   workflow_dispatch:
 
 permissions:
@@ -28,13 +31,20 @@ jobs:
       - name: Install build dependencies
         run: python -m pip install --disable-pip-version-check pillow
 
-      - name: Validate generator
-        run: python -m py_compile tools/generate_ultimate50.py
+      - name: Validate generators
+        run: |
+          python -m py_compile tools/generate_ultimate50.py
+          python -m py_compile tools/apply_legendary_key_v2.py
 
       - name: Generate Minecraft 1.21.11 pack
         env:
           SKYBIT_BUILD_ROOT: build-v6
         run: python tools/generate_ultimate50.py
+
+      - name: Apply Legendary Golden Key V2
+        env:
+          SKYBIT_BUILD_ROOT: build-v6
+        run: python tools/apply_legendary_key_v2.py
 
       - name: Independent verification
         run: |
@@ -53,14 +63,29 @@ jobs:
               assert meta['max_format'] == 75
               canonical=[n for n in z.namelist() if n.startswith('assets/skybit/items/') and n.endswith('.json') and not n.startswith('assets/skybit/items/item/')]
               assert len(canonical) == 92, len(canonical)
+              crate_3d=[n for n in z.namelist() if n.startswith('assets/skybit/models/item/crates/') and n.endswith('_3d.json')]
+              assert len(crate_3d) == 6, crate_3d
               three_d=[n for n in z.namelist() if n.endswith('_3d.json')]
-              assert len(three_d) == 6, three_d
-              assert all('/crates/' in n for n in three_d), three_d
+              assert len(three_d) == 7, three_d
+              assert 'assets/skybit/models/item/keys/legendary_3d.json' in three_d
+              assert 'assets/skybit/textures/item/keys/legendary_3d.png' in z.namelist()
+              legendary=json.loads(z.read('assets/skybit/items/keys/legendary.json'))
+              assert legendary['model']['type'] == 'minecraft:select'
+              assert legendary['model']['property'] == 'minecraft:display_context'
+              assert legendary['model']['cases'][0]['when'] == 'gui'
+              assert legendary['model']['cases'][0]['model']['model'] == 'skybit:item/keys/legendary_icon'
+              assert legendary['model']['fallback']['model'] == 'skybit:item/keys/legendary_3d'
+              model=json.loads(z.read('assets/skybit/models/item/keys/legendary_3d.json'))
+              assert model['textures']['key'] == 'skybit:item/keys/legendary_3d'
+              assert model['textures']['particle'] == 'skybit:item/keys/legendary_3d'
+              assert 'firstperson_righthand' in model.get('display', {})
+              assert 'thirdperson_righthand' in model.get('display', {})
               assert 'assets/skybit/items/keys/basic.json' in canonical
               assert 'assets/skybit/items/crates/mythic.json' in canonical
           print('Release verified:', actual)
           print('Canonical items:', len(canonical))
-          print('3D models:', len(three_d))
+          print('3D crates:', len(crate_3d))
+          print('Legendary Key: 2D GUI + 3D V2 held/world model')
           PY
 
       - name: Replace old release files
@@ -78,7 +103,7 @@ jobs:
 
       - name: Publish v6 release
         run: |
-          mkdir -p development/v6.0.0
+          mkdir -p development/v6.0.0/source/legendary-key-v2
           cp build-v6/SkyBitResourcePack-v6.0.0-1.21.11-READY.zip ./SkyBitResourcePack-v6.0.0-1.21.11-READY.zip
           cp build-v6/SkyBitResourcePack.zip ./SkyBitResourcePack.zip
           cp build-v6/SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt ./SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt
@@ -88,6 +113,9 @@ jobs:
           cp build-v6/development/skybit-items.yml ./development/v6.0.0/skybit-items.yml
           cp build-v6/development/README-GITHUB.md ./README.md
           cp tools/generate_ultimate50.py ./development/v6.0.0/generate_ultimate50.py
+          cp tools/apply_legendary_key_v2.py ./development/v6.0.0/apply_legendary_key_v2.py
+          cp source/legendary-key-v2/legendary_golden_key_v2.png ./development/v6.0.0/source/legendary-key-v2/legendary_golden_key_v2.png
+          cp source/legendary-key-v2/legendary_golden_key_v2_minecraft.json ./development/v6.0.0/source/legendary-key-v2/legendary_golden_key_v2_minecraft.json
           python - <<'PY'
           from pathlib import Path
           import zipfile
@@ -108,6 +136,6 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No generated changes.'
           else
-            git commit -m 'Build SkyBit v6 for Minecraft 1.21.11 - 2D items and 3D crates'
+            git commit -m 'Build SkyBit v6 with Legendary Golden Key V2 in-hand model'
             git push
           fi
