@@ -4,47 +4,74 @@ Official custom resource pack for **SkyBit Network**.
 
 ## Current version
 
-**v3.7.0** — Minecraft Java **1.21.11** / resource-pack format **75**.
+**v4.0.0 Premium** — Minecraft Java **1.21.11** / resource-pack format **75**.
 
-### Visual Overhaul
+### Premium Custom Items overhaul
 
-- complete texture refresh with unified SkyBit palettes and material atlases
-- new `pack.png` and SkyBit Network branding
-- improved 3D weapons, tools, keys, crystals and crate models
-- 3D inventory models for Stormguard, Emberforged and Voidwarden armor pieces
-- premium Legendary Crate crown-style silhouette
-- unique Mythic Crate void horns/glow styling
-- new AFK Zone visual core used by SkyBitCore 3.7.0
+v4 replaces the old generated placeholders with a complete original SkyBit item set aimed at the visual quality of modern premium Minecraft networks:
+
+- **92 canonical custom items** generated in one consistent style
+- separate **2D inventory/ground icons** and **3D hand/fixed models** using the modern `minecraft:display_context` item-model system
+- premium rank badges: **VIP, Knight, Baron, King, Emperor**
+- **Basic, Rare, Epic, Legendary, Mythic and Vote** keys + key fragments
+- matching premium 3D crates, with enhanced Legendary and Mythic silhouettes
+- AFK Core, SkyCoins, contracts, enchant items, guild/bounty items, relics, professions, renown medals and UI icons
+- custom SkyBit weapons, tools and armor inventory models
+- extra modern-server items: boosters, vouchers and cosmetics tokens
+- compatibility aliases under `skybit:item/...` for plugins/configs that use the older-looking item-model path
+- custom SkyBit GUI button styling, languages and pack branding
+
+### Modern item rendering
+
+The pack uses Minecraft's data-driven item model format. Inventory and dropped-item contexts use a clean 2D icon, while hand, fixed/item-frame and other contexts fall back to the 3D model. This keeps menus readable while world/hand items look custom.
 
 ### Direct resource-pack URL
 
+After the v4 GitHub Actions build completes:
+
 ```text
-https://raw.githubusercontent.com/AyroXD/SkyBit-ResourcePack-001/main/SkyBit-ResourcePack-v3.7.0-READY.zip
+https://raw.githubusercontent.com/AyroXD/SkyBit-ResourcePack-001/main/SkyBit-ResourcePack-v4.0.0-READY.zip
 ```
 
 ### SHA1
 
-```text
-5a5474e4facb71a3f71c49cf7def766790110533
-```
-
-### SkyBitCore
+The current hash is generated into:
 
 ```text
-/sba pack seturl https://raw.githubusercontent.com/AyroXD/SkyBit-ResourcePack-001/main/SkyBit-ResourcePack-v3.7.0-READY.zip 5a5474e4facb71a3f71c49cf7def766790110533
-/sba pack send all
+SkyBit-ResourcePack-v4.0.0.sha1.txt
 ```
 
-### server.properties
+### Important item-model IDs
 
-```properties
-resource-pack=https://raw.githubusercontent.com/AyroXD/SkyBit-ResourcePack-001/main/SkyBit-ResourcePack-v3.7.0-READY.zip
-resource-pack-sha1=5a5474e4facb71a3f71c49cf7def766790110533
-require-resource-pack=false
+```text
+skybit:vip/vip_badge
+skybit:vip/knight_badge
+skybit:vip/baron_badge
+skybit:vip/king_badge
+skybit:vip/emperor_badge
+
+skybit:keys/basic
+skybit:keys/rare
+skybit:keys/epic
+skybit:keys/legendary
+skybit:keys/mythic
+skybit:keys/vote
+
+skybit:crates/basic
+skybit:crates/rare
+skybit:crates/epic
+skybit:crates/legendary
+skybit:crates/mythic
+skybit:crates/vote
+
+skybit:afk/beacon
+skybit:currency/skycoin
 ```
+
+If a plugin currently uses values such as `skybit:item/crates/mythic`, v4 also generates matching compatibility definitions.
 
 ## Build
 
-GitHub Actions generates the current pack from `tools/generate_pack.py`, then applies the 3.7 texture/branding and custom-model passes. The generated ZIP and SHA1 are validated before being committed.
+GitHub Actions runs `tools/generate_premium40.py`, validates the generated item definitions and packages the result as `SkyBit-ResourcePack-v4.0.0-READY.zip` with a SHA1 file.
 
-Older generated pack files are removed so `main` exposes only the current v3.7.0 release.
+The previous v3.7 release remains in the repository as a rollback while v4 is tested on the server.
