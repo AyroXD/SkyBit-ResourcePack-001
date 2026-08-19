@@ -14,8 +14,8 @@
 - Structural warnings: **0**
 - Duplicate PNG byte groups: **0**
 - Final pack ZIP size: **205.4 KiB**
-- SHA-1: `70063538b84e46b3e37b80ba5f284c1712ef4ebb`
-- SHA-256: `2cb5f014c6e3110c8f38d1b415690ebdcdb16a9b330c44eece22c03c6b69a6f3`
+- SHA-1: `05791fbcc92f03d55795c0c2e51343fcc1e11d7e`
+- SHA-256: `9ace96b950fa5e1e58fec4e2e07558b158b20d2a32e96f916c30bd7ece5e2e72`
 
 ## Structural validation
 
