@@ -1,8 +1,0 @@
-{
-  "model": {
-    "type": "minecraft:model",
-    "model": "skybit:item/gear/weapons/void_reaver_icon"
-  },
-  "hand_animation_on_swap": false,
-  "oversized_in_gui": false
-}
