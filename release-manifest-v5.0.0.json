@@ -1,0 +1,17 @@
+{
+  "pack": "SkyBit Ultimate Resource Pack",
+  "version": "5.0.0",
+  "minecraft": "26.2",
+  "resource_pack_format": [
+    88,
+    0
+  ],
+  "items": 92,
+  "textures": 120,
+  "models": 130,
+  "3d_models": 35,
+  "animated_items": 20,
+  "sha1": "70063538b84e46b3e37b80ba5f284c1712ef4ebb",
+  "sha256": "2cb5f014c6e3110c8f38d1b415690ebdcdb16a9b330c44eece22c03c6b69a6f3",
+  "status": "GENERATED_AND_STRUCTURALLY_VALIDATED_NEEDS_IN_GAME_TESTING"
+}
