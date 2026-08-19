@@ -1,0 +1,1 @@
+Verify the valid uploaded premium key package and publish the resulting resource pack.
