@@ -1,10 +1,10 @@
-name: Build SkyBit Ultimate Resource Pack v5
+name: Build SkyBit Resource Pack v6
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - '.github/workflows/build-resource-pack-v5.yml'
+      - 'tools/generate_ultimate50.py'
   workflow_dispatch:
 
 permissions:
@@ -12,10 +12,13 @@ permissions:
 
 jobs:
   build:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -23,73 +26,87 @@ jobs:
           python-version: '3.12'
 
       - name: Install build dependencies
-        run: python -m pip install --disable-pip-version-check pillow pyyaml
+        run: python -m pip install --disable-pip-version-check pillow
 
-      - name: Validate production generator
+      - name: Validate generator
         run: python -m py_compile tools/generate_ultimate50.py
 
-      - name: Generate and validate Minecraft 26.2 pack
+      - name: Generate Minecraft 1.21.11 pack
         env:
-          SKYBIT_BUILD_ROOT: build-v5
+          SKYBIT_BUILD_ROOT: build-v6
         run: python tools/generate_ultimate50.py
 
-      - name: Publish generated pack and development files
-        run: |
-          rm -rf development/v5.0.0
-          mkdir -p development/v5.0.0/tools
-          cp -a build-v5/development/. development/v5.0.0/
-          cp tools/generate_ultimate50.py development/v5.0.0/tools/generate_ultimate50.py
-          cp build-v5/SkyBitResourcePack-v5.0.0-26.2-READY.zip ./SkyBitResourcePack-v5.0.0-26.2-READY.zip
-          cp build-v5/SkyBitResourcePack.zip ./SkyBitResourcePack.zip
-          cp build-v5/SkyBitResourcePack-v5.0.0-26.2.sha1.txt ./SkyBitResourcePack-v5.0.0-26.2.sha1.txt
-          cp build-v5/release-manifest.json ./release-manifest-v5.0.0.json
-          python - <<'PY'
-          from pathlib import Path
-          import zipfile
-          root=Path('development/v5.0.0')
-          out=Path('SkyBitResourcePack-v5.0.0-development.zip')
-          if out.exists(): out.unlink()
-          with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
-              for f in sorted(root.rglob('*')):
-                  if f.is_file(): z.write(f,f.relative_to(root).as_posix())
-              z.write('release-manifest-v5.0.0.json','release-manifest.json')
-          PY
-
-      - name: Independent release verification
+      - name: Independent verification
         run: |
           python - <<'PY'
           from pathlib import Path
           import hashlib, json, zipfile
-          p=Path('SkyBitResourcePack-v5.0.0-26.2-READY.zip')
-          expected=Path('SkyBitResourcePack-v5.0.0-26.2.sha1.txt').read_text().strip()
+          p=Path('build-v6/SkyBitResourcePack-v6.0.0-1.21.11-READY.zip')
+          expected=Path('build-v6/SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt').read_text().strip()
           actual=hashlib.sha1(p.read_bytes()).hexdigest()
           assert actual == expected, (actual, expected)
           with zipfile.ZipFile(p) as z:
               assert z.testzip() is None
               meta=json.loads(z.read('pack.mcmeta'))['pack']
-              assert meta['min_format'] == [88,0]
-              assert meta['max_format'] == [88,0]
-              itemdefs=[n for n in z.namelist() if n.startswith('assets/skybit/items/') and n.endswith('.json')]
-              assert len(itemdefs) == 92, len(itemdefs)
-              assert 'assets/skybit/items/keys/mythic.json' in itemdefs
-              assert 'assets/skybit/items/gear/weapons/void_reaver.json' in itemdefs
-              assert 'assets/skybit/equipment/stormguard.json' in z.namelist()
-          print('Release verified')
-          print('SHA1:', actual)
-          print('Item definitions:', len(itemdefs))
+              assert meta['pack_format'] == 75
+              assert meta['min_format'] == 75
+              assert meta['max_format'] == 75
+              canonical=[n for n in z.namelist() if n.startswith('assets/skybit/items/') and n.endswith('.json') and not n.startswith('assets/skybit/items/item/')]
+              assert len(canonical) == 92, len(canonical)
+              three_d=[n for n in z.namelist() if n.endswith('_3d.json')]
+              assert len(three_d) == 6, three_d
+              assert all('/crates/' in n for n in three_d), three_d
+              assert 'assets/skybit/items/keys/basic.json' in canonical
+              assert 'assets/skybit/items/crates/mythic.json' in canonical
+          print('Release verified:', actual)
+          print('Canonical items:', len(canonical))
+          print('3D models:', len(three_d))
           PY
 
-      - name: Commit generated v5 release
+      - name: Replace old release files
+        run: |
+          rm -f SkyBitResourcePack-v5.0.0-26.2-READY.zip
+          rm -f SkyBitResourcePack-v5.0.0-26.2.sha1.txt
+          rm -f SkyBitResourcePack-v5.0.0-development.zip
+          rm -f release-manifest-v5.0.0.json
+          rm -rf development/v5.0.0
+          rm -f SkyBitResourcePack-v6.0.0-1.21.11-READY.zip
+          rm -f SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt
+          rm -f SkyBitResourcePack-v6.0.0-development.zip
+          rm -f release-manifest-v6.0.0.json
+          rm -rf development/v6.0.0
+
+      - name: Publish v6 release
+        run: |
+          mkdir -p development/v6.0.0
+          cp build-v6/SkyBitResourcePack-v6.0.0-1.21.11-READY.zip ./SkyBitResourcePack-v6.0.0-1.21.11-READY.zip
+          cp build-v6/SkyBitResourcePack.zip ./SkyBitResourcePack.zip
+          cp build-v6/SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt ./SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt
+          cp build-v6/release-manifest.json ./release-manifest-v6.0.0.json
+          cp build-v6/development/VALIDATION_REPORT.md ./development/v6.0.0/VALIDATION_REPORT.md
+          cp build-v6/development/skybit_item_registry.json ./development/v6.0.0/skybit_item_registry.json
+          cp build-v6/development/skybit-items.yml ./development/v6.0.0/skybit-items.yml
+          cp build-v6/development/README-GITHUB.md ./README.md
+          cp tools/generate_ultimate50.py ./development/v6.0.0/generate_ultimate50.py
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+          root=Path('development/v6.0.0')
+          out=Path('SkyBitResourcePack-v6.0.0-development.zip')
+          with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
+              for f in sorted(root.rglob('*')):
+                  if f.is_file(): z.write(f,f.relative_to(root).as_posix())
+              z.write('release-manifest-v6.0.0.json','release-manifest.json')
+          PY
+
+      - name: Commit generated v6 release
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add tools/generate_ultimate50.py development/v5.0.0 \
-            SkyBitResourcePack-v5.0.0-26.2-READY.zip SkyBitResourcePack.zip \
-            SkyBitResourcePack-v5.0.0-26.2.sha1.txt SkyBitResourcePack-v5.0.0-development.zip \
-            release-manifest-v5.0.0.json
+          git add -A
           if git diff --cached --quiet; then
             echo 'No generated changes.'
           else
-            git commit -m 'Build latest SkyBit Ultimate Resource Pack v5.0.0'
+            git commit -m 'Build SkyBit v6 for Minecraft 1.21.11 - 2D items and 3D crates'
             git push
           fi
