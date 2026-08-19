@@ -6,6 +6,9 @@
   "items": 92,
   "two_d_items": 86,
   "three_d_crates": 6,
-  "sha1": "5c08f944dc8dab1b7f0c5554a06e2d8346b39d99",
-  "status": "GENERATED_AND_STRUCTURALLY_VALIDATED"
+  "sha1": "5fd0b2a0452092e394522f776b6f1bf6f30c010b",
+  "status": "GENERATED_AND_STRUCTURALLY_VALIDATED",
+  "three_d_held_items": 1,
+  "legendary_key_render_mode": "2d_gui_3d_held",
+  "legendary_key_model": "skybit:item/keys/legendary_3d"
 }

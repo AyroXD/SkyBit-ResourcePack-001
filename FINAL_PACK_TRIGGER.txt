@@ -1,3 +1,0 @@
-Build and publish final SkyBit pack with Legendary Golden Key V2.
-Retry with normalized registry schema.
-Retry with corrected development YAML publish path.

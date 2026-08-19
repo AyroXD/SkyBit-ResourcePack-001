@@ -131,7 +131,7 @@
       "display_name": "Legendary Key",
       "material": "TRIPWIRE_HOOK",
       "minecraft:item_model": "skybit:item/keys/legendary",
-      "render_mode": "2d_icon"
+      "render_mode": "2d_gui_3d_held"
     },
     {
       "id": "skybit:fragments/legendary",
@@ -651,5 +651,6 @@
       "minecraft:item_model": "skybit:item/cosmetics/nameplate_token",
       "render_mode": "2d_icon"
     }
-  ]
+  ],
+  "three_d_held_items": 1
 }
