@@ -5,6 +5,7 @@ import os
 import shutil
 import zipfile
 
+# Inject the uploaded Legendary Golden Key V2 after the base v6 generator runs.
 ROOT = Path(os.getenv('SKYBIT_BUILD_ROOT', 'build-v6'))
 PACK = ROOT / 'SkyBitResourcePack'
 DEV = ROOT / 'development'
