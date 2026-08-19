@@ -9,6 +9,9 @@ on:
       - 'source/legendary-key-v2/**'
       - 'source/SkyBit_3_Key_Package.zip'
       - '.github/workflows/build-resource-pack-v5.yml'
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 permissions:
@@ -19,95 +22,175 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout writable branch
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install dependencies
+
+      - name: Install build dependencies
         run: python -m pip install --disable-pip-version-check pillow
-      - name: Validate scripts
+
+      - name: Validate generators
         run: |
           python -m py_compile tools/generate_ultimate50.py
           python -m py_compile tools/apply_legendary_key_v2.py
-      - name: Normalize registry
+
+      - name: Normalize v6 registry for generator
         run: |
           python - <<'PY'
           from pathlib import Path
           import json
           p=Path('development/v6.0.0/skybit_item_registry.json')
-          d=json.loads(p.read_text(encoding='utf-8'))
-          cats={'vip':'vip_ranks','keys':'keys','fragments':'fragments','crates':'crates','mines':'mine_crystals','currency':'currency','contracts':'contracts','afk':'afk','enchant':'enchant','guilds':'guilds','bounty':'bounty','treasure':'treasure','events':'events','achievements':'achievements','collections':'collections','cozy':'cozy','relics':'relics','professions':'professions','renown':'renown','ui':'ui','boosters':'boosters','vouchers':'vouchers','cosmetics':'cosmetics'}
-          for x in d['items']:
-              iid=x.get('namespaced_id') or x.get('id'); path=iid.split(':',1)[1]
-              x['namespaced_id']=iid; x['vanilla_base_material']=x.get('vanilla_base_material') or x.get('material') or 'PAPER'
-              if not x.get('category'):
-                  x['category']='weapons' if path.startswith('gear/weapons/') else 'tools' if path.startswith('gear/tools/') else 'armor' if path.startswith('gear/armor/') else cats.get(path.split('/',1)[0],'misc')
-              if not x.get('rarity'):
+          data=json.loads(p.read_text(encoding='utf-8'))
+          categories={
+            'vip':'vip_ranks','keys':'keys','fragments':'fragments','crates':'crates','mines':'mine_crystals',
+            'currency':'currency','contracts':'contracts','afk':'afk','enchant':'enchant','guilds':'guilds',
+            'bounty':'bounty','treasure':'treasure','events':'events','achievements':'achievements',
+            'collections':'collections','cozy':'cozy','relics':'relics','professions':'professions','renown':'renown',
+            'ui':'ui','boosters':'boosters','vouchers':'vouchers','cosmetics':'cosmetics'
+          }
+          for it in data['items']:
+              iid=it.get('namespaced_id') or it.get('id')
+              if not iid:
+                  raise RuntimeError(f'Missing item id: {it}')
+              path=iid.split(':',1)[1]
+              it['namespaced_id']=iid
+              it['vanilla_base_material']=it.get('vanilla_base_material') or it.get('material') or 'PAPER'
+              if not it.get('category'):
+                  if path.startswith('gear/weapons/'):
+                      it['category']='weapons'
+                  elif path.startswith('gear/tools/'):
+                      it['category']='tools'
+                  elif path.startswith('gear/armor/'):
+                      it['category']='armor'
+                  else:
+                      it['category']=categories.get(path.split('/',1)[0],'misc')
+              if not it.get('rarity'):
                   low=path.lower()
-                  x['rarity']='mythic' if ('mythic' in low or 'emperor' in low or 'voidwarden' in low) else 'legendary' if ('legendary' in low or '/king_' in low or 'emberforged' in low) else 'epic' if ('epic' in low or 'baron' in low) else 'rare' if ('rare' in low or 'knight' in low or 'stormguard' in low) else 'basic' if 'basic' in low else 'vote' if 'vote' in low else 'vip' if path.startswith('vip/') else 'neutral'
-          p.write_text(json.dumps(d,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
-          print('Normalized',len(d['items']),'items')
+                  if 'mythic' in low or 'emperor' in low or 'voidwarden' in low:
+                      it['rarity']='mythic'
+                  elif 'legendary' in low or '/king_' in low or 'emberforged' in low:
+                      it['rarity']='legendary'
+                  elif 'epic' in low or 'baron' in low:
+                      it['rarity']='epic'
+                  elif 'rare' in low or 'knight' in low or 'stormguard' in low:
+                      it['rarity']='rare'
+                  elif 'basic' in low:
+                      it['rarity']='basic'
+                  elif 'vote' in low:
+                      it['rarity']='vote'
+                  elif path.startswith('vip/'):
+                      it['rarity']='vip'
+                  else:
+                      it['rarity']='neutral'
+          p.write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          print('Normalized',len(data['items']),'items')
           PY
-      - name: Generate base pack
+
+      - name: Generate Minecraft 1.21.11 pack
         env:
           SKYBIT_BUILD_ROOT: build-v6
         run: python tools/generate_ultimate50.py
-      - name: Apply Rare Epic Legendary Mythic 3D keys
+
+      - name: Apply premium 3D key models
         env:
           SKYBIT_BUILD_ROOT: build-v6
         run: python tools/apply_legendary_key_v2.py
-      - name: Verify release
+
+      - name: Independent verification
         run: |
           python - <<'PY'
           from pathlib import Path
-          import hashlib,json,zipfile
+          import hashlib, json, zipfile
           p=Path('build-v6/SkyBitResourcePack-v6.0.0-1.21.11-READY.zip')
-          sha=Path('build-v6/SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt').read_text().strip()
-          assert hashlib.sha1(p.read_bytes()).hexdigest()==sha
-          tiers=['rare','epic','legendary','mythic']
+          expected=Path('build-v6/SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt').read_text().strip()
+          actual=hashlib.sha1(p.read_bytes()).hexdigest()
+          assert actual == expected, (actual, expected)
+          special=['rare','epic','legendary','mythic']
           with zipfile.ZipFile(p) as z:
               assert z.testzip() is None
-              meta=json.loads(z.read('pack.mcmeta'))['pack']; assert meta['pack_format']==75
-              canonical=[n for n in z.namelist() if n.startswith('assets/skybit/items/') and n.endswith('.json') and not n.startswith('assets/skybit/items/item/')]; assert len(canonical)==92
-              crates=[n for n in z.namelist() if n.startswith('assets/skybit/models/item/crates/') and n.endswith('_3d.json')]; assert len(crates)==6
-              all3=[n for n in z.namelist() if n.endswith('_3d.json')]; assert len(all3)==10,all3
-              for t in tiers:
-                  mp=f'assets/skybit/models/item/keys/{t}_3d.json'; tp=f'assets/skybit/textures/item/keys/{t}_3d.png'; ip=f'assets/skybit/items/keys/{t}.json'
-                  assert mp in z.namelist() and tp in z.namelist()
-                  idef=json.loads(z.read(ip)); assert idef['model']['cases'][0]['model']['model']==f'skybit:item/keys/{t}_icon'; assert idef['model']['fallback']['model']==f'skybit:item/keys/{t}_3d'
-                  m=json.loads(z.read(mp)); assert m['textures']['key']==f'skybit:item/keys/{t}_3d'; assert 'firstperson_righthand' in m['display']
-                  vals=[float(v) for e in m.get('elements',[]) for f in e.get('faces',{}).values() for v in f.get('uv',[])]; assert max(vals or [0])<=16.0001
-          print('Verified',sha,'3D held keys:',tiers)
+              meta=json.loads(z.read('pack.mcmeta'))['pack']
+              assert meta['pack_format'] == 75
+              assert meta['min_format'] == 75
+              assert meta['max_format'] == 75
+              canonical=[n for n in z.namelist() if n.startswith('assets/skybit/items/') and n.endswith('.json') and not n.startswith('assets/skybit/items/item/')]
+              assert len(canonical) == 92, len(canonical)
+              crate_3d=[n for n in z.namelist() if n.startswith('assets/skybit/models/item/crates/') and n.endswith('_3d.json')]
+              assert len(crate_3d) == 6, crate_3d
+              three_d=[n for n in z.namelist() if n.endswith('_3d.json')]
+              assert len(three_d) == 10, three_d
+              for tier in special:
+                  model_path=f'assets/skybit/models/item/keys/{tier}_3d.json'
+                  texture_path=f'assets/skybit/textures/item/keys/{tier}_3d.png'
+                  assert model_path in z.namelist(), model_path
+                  assert texture_path in z.namelist(), texture_path
+                  item=json.loads(z.read(f'assets/skybit/items/keys/{tier}.json'))
+                  assert item['model']['type'] == 'minecraft:select'
+                  assert item['model']['property'] == 'minecraft:display_context'
+                  assert item['model']['cases'][0]['when'] == 'gui'
+                  assert item['model']['cases'][0]['model']['model'] == f'skybit:item/keys/{tier}_icon'
+                  assert item['model']['fallback']['model'] == f'skybit:item/keys/{tier}_3d'
+                  model=json.loads(z.read(model_path))
+                  assert model['textures']['key'] == f'skybit:item/keys/{tier}_3d'
+                  assert model['textures']['particle'] == f'skybit:item/keys/{tier}_3d'
+                  assert 'firstperson_righthand' in model.get('display', {})
+                  assert 'thirdperson_righthand' in model.get('display', {})
+                  max_uv=max([float(v) for e in model.get('elements',[]) for face in e.get('faces',{}).values() for v in face.get('uv',[])] or [0])
+                  assert max_uv <= 16.0001, (tier,max_uv)
+          print('Release verified:', actual)
+          print('Canonical items:', len(canonical))
+          print('3D crates:', len(crate_3d))
+          print('3D held keys:', special)
           PY
-      - name: Publish release files
+
+      - name: Replace old release files
         run: |
-          rm -f SkyBitResourcePack-v6.0.0-1.21.11-READY.zip SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt SkyBitResourcePack-v6.0.0-development.zip release-manifest-v6.0.0.json
+          rm -f SkyBitResourcePack-v5.0.0-26.2-READY.zip
+          rm -f SkyBitResourcePack-v5.0.0-26.2.sha1.txt
+          rm -f SkyBitResourcePack-v5.0.0-development.zip
+          rm -f release-manifest-v5.0.0.json
+          rm -rf development/v5.0.0
+          rm -f SkyBitResourcePack-v6.0.0-1.21.11-READY.zip
+          rm -f SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt
+          rm -f SkyBitResourcePack-v6.0.0-development.zip
+          rm -f release-manifest-v6.0.0.json
           rm -rf development/v6.0.0
-          mkdir -p development/v6.0.0/source/legendary-key-v2
-          cp build-v6/SkyBitResourcePack-v6.0.0-1.21.11-READY.zip .
-          cp build-v6/SkyBitResourcePack.zip .
-          cp build-v6/SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt .
-          cp build-v6/release-manifest.json release-manifest-v6.0.0.json
-          cp build-v6/development/VALIDATION_REPORT.md development/v6.0.0/VALIDATION_REPORT.md
-          cp build-v6/development/skybit_item_registry.json development/v6.0.0/skybit_item_registry.json
-          if [ -f build-v6/development/skybit-items.yml ]; then cp build-v6/development/skybit-items.yml development/v6.0.0/skybit-items.yml; fi
-          cp build-v6/development/README-GITHUB.md README.md
-          cp tools/generate_ultimate50.py development/v6.0.0/generate_ultimate50.py
-          cp tools/apply_legendary_key_v2.py development/v6.0.0/apply_legendary_key_v2.py
-          cp source/legendary-key-v2/* development/v6.0.0/source/legendary-key-v2/
-          cp source/SkyBit_3_Key_Package.zip development/v6.0.0/source/SkyBit_3_Key_Package.zip
+          rm -f BUILD_TRIGGER.txt
+          rm -f FINAL_PACK_TRIGGER.txt
+
+      - name: Publish v6 release
+        run: |
+          mkdir -p development/v6.0.0/source
+          cp build-v6/SkyBitResourcePack-v6.0.0-1.21.11-READY.zip ./SkyBitResourcePack-v6.0.0-1.21.11-READY.zip
+          cp build-v6/SkyBitResourcePack.zip ./SkyBitResourcePack.zip
+          cp build-v6/SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt ./SkyBitResourcePack-v6.0.0-1.21.11.sha1.txt
+          cp build-v6/release-manifest.json ./release-manifest-v6.0.0.json
+          cp build-v6/development/VALIDATION_REPORT.md ./development/v6.0.0/VALIDATION_REPORT.md
+          cp build-v6/development/skybit_item_registry.json ./development/v6.0.0/skybit_item_registry.json
+          if [ -f build-v6/development/skybit-items.yml ]; then cp build-v6/development/skybit-items.yml ./development/v6.0.0/skybit-items.yml; fi
+          cp build-v6/development/README-GITHUB.md ./README.md
+          cp tools/generate_ultimate50.py ./development/v6.0.0/generate_ultimate50.py
+          cp tools/apply_legendary_key_v2.py ./development/v6.0.0/apply_legendary_key_v2.py
+          cp -r source/legendary-key-v2 ./development/v6.0.0/source/
+          cp source/SkyBit_3_Key_Package.zip ./development/v6.0.0/source/SkyBit_3_Key_Package.zip
           python - <<'PY'
           from pathlib import Path
           import zipfile
-          root=Path('development/v6.0.0'); out=Path('SkyBitResourcePack-v6.0.0-development.zip')
+          root=Path('development/v6.0.0')
+          out=Path('SkyBitResourcePack-v6.0.0-development.zip')
           with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED,compresslevel=9) as z:
               for f in sorted(root.rglob('*')):
                   if f.is_file(): z.write(f,f.relative_to(root).as_posix())
               z.write('release-manifest-v6.0.0.json','release-manifest.json')
           PY
-      - name: Commit generated release
+
+      - name: Commit generated v6 release to current branch
         run: |
           rm -rf build-v6
           git config user.name 'github-actions[bot]'
@@ -117,5 +200,9 @@ jobs:
             echo 'No generated changes.'
           else
             git commit -m 'Build SkyBit v6 with Rare Epic Legendary Mythic 3D held keys'
-            git push
+            if [ "${{ github.event_name }}" = "pull_request" ]; then
+              git push origin HEAD:${{ github.head_ref }}
+            else
+              git push
+            fi
           fi
