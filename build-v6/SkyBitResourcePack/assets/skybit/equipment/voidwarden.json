@@ -1,0 +1,10 @@
+{
+  "layers": {
+    "humanoid": [
+      "skybit:voidwarden"
+    ],
+    "humanoid_leggings": [
+      "skybit:voidwarden_leggings"
+    ]
+  }
+}

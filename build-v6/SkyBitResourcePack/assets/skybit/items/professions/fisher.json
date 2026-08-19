@@ -1,0 +1,8 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "skybit:item/professions/fisher_icon"
+  },
+  "hand_animation_on_swap": false,
+  "oversized_in_gui": false
+}

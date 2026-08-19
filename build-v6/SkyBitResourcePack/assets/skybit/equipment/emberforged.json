@@ -1,0 +1,10 @@
+{
+  "layers": {
+    "humanoid": [
+      "skybit:emberforged"
+    ],
+    "humanoid_leggings": [
+      "skybit:emberforged_leggings"
+    ]
+  }
+}

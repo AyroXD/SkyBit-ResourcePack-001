@@ -1,0 +1,8 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "skybit:item/mines/epic_crystal_icon"
+  },
+  "hand_animation_on_swap": false,
+  "oversized_in_gui": false
+}
