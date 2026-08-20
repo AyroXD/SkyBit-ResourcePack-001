@@ -6,7 +6,7 @@
   "items": 92,
   "two_d_items": 86,
   "three_d_crates": 6,
-  "sha1": "fd04369973d4cfd1e17a242816980f4d1e1bea60",
+  "sha1": "0cc319b8dbeaf8efd23e84aea837acc88ae602d4",
   "status": "GENERATED_AND_STRUCTURALLY_VALIDATED",
   "three_d_held_items": 4,
   "three_d_held_keys": {
@@ -29,6 +29,44 @@
       "name": "Astral Empress Key V8",
       "render_mode": "2d_gui_3d_held",
       "model": "skybit:item/keys/mythic_3d"
+    }
+  },
+  "premium_crates_v2": {
+    "basic": {
+      "model": "skybit:item/crates/basic_3d",
+      "texture": "skybit:item/crates/basic_box",
+      "render_mode": "2d_gui_3d_world",
+      "elements": 152
+    },
+    "vote": {
+      "model": "skybit:item/crates/vote_3d",
+      "texture": "skybit:item/crates/vote_box",
+      "render_mode": "2d_gui_3d_world",
+      "elements": 162
+    },
+    "rare": {
+      "model": "skybit:item/crates/rare_3d",
+      "texture": "skybit:item/crates/rare_box",
+      "render_mode": "2d_gui_3d_world",
+      "elements": 162
+    },
+    "epic": {
+      "model": "skybit:item/crates/epic_3d",
+      "texture": "skybit:item/crates/epic_box",
+      "render_mode": "2d_gui_3d_world",
+      "elements": 168
+    },
+    "legendary": {
+      "model": "skybit:item/crates/legendary_3d",
+      "texture": "skybit:item/crates/legendary_box",
+      "render_mode": "2d_gui_3d_world",
+      "elements": 175
+    },
+    "mythic": {
+      "model": "skybit:item/crates/mythic_3d",
+      "texture": "skybit:item/crates/mythic_box",
+      "render_mode": "2d_gui_3d_world",
+      "elements": 176
     }
   }
 }
