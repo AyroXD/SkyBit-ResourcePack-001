@@ -61,7 +61,7 @@
       "display_name": "Basic Crate",
       "material": "CHEST",
       "minecraft:item_model": "skybit:item/crates/basic",
-      "render_mode": "3d_crate"
+      "render_mode": "3d_crate_v2_premium"
     },
     {
       "id": "skybit:mines/basic_crystal",
@@ -89,7 +89,7 @@
       "display_name": "Rare Crate",
       "material": "CHEST",
       "minecraft:item_model": "skybit:item/crates/rare",
-      "render_mode": "3d_crate"
+      "render_mode": "3d_crate_v2_premium"
     },
     {
       "id": "skybit:mines/rare_crystal",
@@ -117,7 +117,7 @@
       "display_name": "Epic Crate",
       "material": "CHEST",
       "minecraft:item_model": "skybit:item/crates/epic",
-      "render_mode": "3d_crate"
+      "render_mode": "3d_crate_v2_premium"
     },
     {
       "id": "skybit:mines/epic_crystal",
@@ -145,7 +145,7 @@
       "display_name": "Legendary Crate",
       "material": "CHEST",
       "minecraft:item_model": "skybit:item/crates/legendary",
-      "render_mode": "3d_crate"
+      "render_mode": "3d_crate_v2_premium"
     },
     {
       "id": "skybit:mines/legendary_crystal",
@@ -173,7 +173,7 @@
       "display_name": "Mythic Crate",
       "material": "CHEST",
       "minecraft:item_model": "skybit:item/crates/mythic",
-      "render_mode": "3d_crate"
+      "render_mode": "3d_crate_v2_premium"
     },
     {
       "id": "skybit:keys/vote",
@@ -194,7 +194,7 @@
       "display_name": "Vote Crate",
       "material": "CHEST",
       "minecraft:item_model": "skybit:item/crates/vote",
-      "render_mode": "3d_crate"
+      "render_mode": "3d_crate_v2_premium"
     },
     {
       "id": "skybit:mines/vote_crystal",
@@ -658,5 +658,13 @@
     "skybit:keys/legendary",
     "skybit:keys/mythic",
     "skybit:keys/rare"
+  ],
+  "premium_crates_v2": [
+    "basic",
+    "vote",
+    "rare",
+    "epic",
+    "legendary",
+    "mythic"
   ]
 }
